@@ -7,10 +7,22 @@ vim.keymap.set("n", "<A-=>", function()
     local win = Window:new({
         bufnr = buf.bufnr,
         open_window_options = {
-            width = 10,
-            height = 25,
+            width = 30,
+            height = 10,
         },
     })
+    buf:set_content({ "look at me" })
+
+    local buf2 = Buffer:new()
+    local win2 = Window:new({
+        bufnr = buf2.bufnr,
+        open_window_options = {
+            relative = "editor",
+            width = 20,
+            height = 10,
+        },
+    })
+    buf2:set_content({ "look at me now" })
 end, {})
 
 vim.keymap.set("n", "<A-BS>", function()

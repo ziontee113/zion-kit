@@ -31,23 +31,37 @@ function Window.options_are_valid(options)
 end
 
 function Window:extend_open_window_options(user_open_window_options)
-    self.open_window_options =
-        vim.tbl_extend("force", self.open_window_options, user_open_window_options or {})
+    self.open_window_options = vim.tbl_extend(
+        "force",
+        self.open_window_options,
+        user_open_window_options or {}
+    )
 end
 
 function Window:extend_window_options(user_window_options)
-    self.window_options = vim.tbl_extend("force", self.window_options, user_window_options or {})
+    self.window_options =
+        vim.tbl_extend("force", self.window_options, user_window_options or {})
 end
 
 function Window:set_window_options()
     for option_name, option_value in pairs(self.window_options) do
-        local ok, _ = pcall(vim.api.nvim_win_set_option, self.winnr, option_name, option_value)
+        local ok, _ = pcall(
+            vim.api.nvim_win_set_option,
+            self.winnr,
+            option_name,
+            option_value
+        )
         self.notify_win_set_option_failure(ok, option_name, option_value)
     end
 end
 
 function Window:set_single_option(option_name, option_value)
-    local ok, _ = pcall(vim.api.nvim_win_set_option, self.winnr, option_name, option_value)
+    local ok, _ = pcall(
+        vim.api.nvim_win_set_option,
+        self.winnr,
+        option_name,
+        option_value
+    )
     self.notify_win_set_option_failure(ok, option_name, option_value)
 end
 
@@ -55,7 +69,10 @@ function Window.notify_win_set_option_failure(ok, option_name, option_value)
     if not ok then
         local error_log_level = 2
         vim.notify({
-            "Failed to set Window option: " .. option_name .. "" .. option_value,
+            "Failed to set Window option: "
+                .. option_name
+                .. " :: "
+                .. option_value,
             error_log_level,
         })
     end

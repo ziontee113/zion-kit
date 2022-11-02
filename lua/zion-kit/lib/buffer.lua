@@ -17,12 +17,8 @@ function Buffer:new(user_options)
     return buffer_instance
 end
 
-function Buffer:set_bufnr(number)
-    self.bufnr = number
-end
-
-function Buffer:get_bufnr()
-    return self.bufnr
+function Buffer:set_content(content_tbl)
+    vim.api.nvim_buf_set_lines(self.bufnr, 0, -1, false, content_tbl)
 end
 
 function Buffer:create_scratch_buffer()
@@ -30,18 +26,29 @@ function Buffer:create_scratch_buffer()
 end
 
 function Buffer:extend_buffer_options(buffer_options)
-    self.buffer_options = vim.tbl_extend("force", self.buffer_options, buffer_options or {})
+    self.buffer_options =
+        vim.tbl_extend("force", self.buffer_options, buffer_options or {})
 end
 
 function Buffer:set_buffer_options()
     for option_name, option_value in pairs(self.buffer_options) do
-        local ok, _ = pcall(vim.api.nvim_buf_set_option, self.bufnr, option_name, option_value)
+        local ok, _ = pcall(
+            vim.api.nvim_buf_set_option,
+            self.bufnr,
+            option_name,
+            option_value
+        )
         self.notify_buf_set_option_failure(ok, option_name, option_value)
     end
 end
 
 function Buffer:set_single_option(option_name, option_value)
-    local ok, _ = pcall(vim.api.nvim_buf_set_option, self.bufnr, option_name, option_value)
+    local ok, _ = pcall(
+        vim.api.nvim_buf_set_option,
+        self.bufnr,
+        option_name,
+        option_value
+    )
     self.notify_buf_set_option_failure(ok, option_name, option_value)
 end
 
@@ -49,7 +56,10 @@ function Buffer.notify_buf_set_option_failure(ok, option_name, option_value)
     if not ok then
         local error_log_level = 2
         vim.notify({
-            "Failed to set Buffer option: " .. option_name .. "" .. option_value,
+            "Failed to set Buffer option: "
+                .. option_name
+                .. " :: "
+                .. option_value,
             error_log_level,
         })
     end
