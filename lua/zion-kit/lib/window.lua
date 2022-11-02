@@ -2,18 +2,18 @@ local Window = {}
 Window.__index = Window
 
 function Window:new(options)
-	local window_instance = setmetatable({}, Window)
+    local window_instance = setmetatable({}, Window)
 
-	-- TODO:
+    -- TODO:
 
-	-- nvim_create_buf()
-	-- nvim_open_win()
+    -- nvim_create_buf()
+    -- nvim_open_win()
 
-	return window_instance
+    return window_instance
 end
 
 function Window:open(options)
-	N("window openened")
+    N "window openened"
 end
 
 return Window
