@@ -3,15 +3,15 @@ local Buffer = require "zion-kit.lib.buffer"
 local Window = require "zion-kit.lib.window"
 
 vim.keymap.set("n", "<A-=>", function()
-    local buf = Buffer:new()
-    local win = Window:new({
-        bufnr = buf.bufnr,
+    local buf1 = Buffer:new()
+    local win1 = Window:new({
+        bufnr = buf1.bufnr,
         open_window_options = {
             width = 30,
             height = 10,
         },
     })
-    buf:set_content({ "look at me" })
+    buf1:set_content({ "look at me" })
 
     local buf2 = Buffer:new()
     local win2 = Window:new({
@@ -21,8 +21,18 @@ vim.keymap.set("n", "<A-=>", function()
             width = 20,
             height = 10,
         },
+        window_options = {
+            cursorline = true,
+        },
     })
     buf2:set_content({ "look at me now" })
+
+    vim.keymap.set("n", "<Tab>", function()
+        win1:jump_to()
+    end, { buffer = buf2.bufnr })
+    vim.keymap.set("n", "<Tab>", function()
+        win2:jump_to()
+    end, { buffer = buf1.bufnr })
 end, {})
 
 vim.keymap.set("n", "<A-BS>", function()

@@ -30,6 +30,17 @@ function Window.options_are_valid(options)
     return options.bufnr
 end
 
+---@param position table|nil
+function Window:jump_to(position)
+    position = position or { 1, 0 }
+    vim.api.nvim_win_set_cursor(self.winnr, position)
+    vim.api.nvim_set_current_win(self.winnr)
+end
+
+function Window:close()
+    vim.api.nvim_win_close(self.winnr, true)
+end
+
 function Window:extend_open_window_options(user_open_window_options)
     self.open_window_options = vim.tbl_extend(
         "force",
@@ -88,7 +99,6 @@ end
 
 function Window:open(bufnr)
     self.winnr = vim.api.nvim_open_win(bufnr, true, self.open_window_options)
-    self.bufnr = bufnr
 end
 
 return Window
