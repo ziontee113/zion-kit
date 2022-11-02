@@ -4,16 +4,25 @@ local Buffer = {
         bufhidden = "delete",
     },
 }
-Buffer.__index = {}
 
 function Buffer:new(user_options)
-    local buffer_instance = setmetatable({}, Buffer)
+    local buffer_instance = setmetatable({}, { __index = Buffer })
 
-    self:create_scratch_buffer()
-    self:extend_buffer_options(user_options.buffer_options)
-    self:set_buffer_options()
+    user_options = user_options or {}
+
+    buffer_instance:create_scratch_buffer()
+    buffer_instance:extend_buffer_options(user_options.buffer_options)
+    buffer_instance:set_buffer_options()
 
     return buffer_instance
+end
+
+function Buffer:set_bufnr(number)
+    self.bufnr = number
+end
+
+function Buffer:get_bufnr()
+    return self.bufnr
 end
 
 function Buffer:create_scratch_buffer()

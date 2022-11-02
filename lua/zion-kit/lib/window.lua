@@ -12,16 +12,15 @@ local Window = {
         --
     },
 }
-Window.__index = Window
 
 function Window:new(options)
     if Window.options_are_valid(options) then
-        local window_instance = setmetatable({}, Window)
+        local window_instance = setmetatable({}, { __index = Window })
 
-        Window:extend_open_window_options(options.open_window_options)
-        Window:extend_window_options(options.window_options)
-        Window:open(options.bufnr)
-        Window:set_window_options()
+        window_instance:extend_open_window_options(options.open_window_options)
+        window_instance:extend_window_options(options.window_options)
+        window_instance:open(options.bufnr)
+        window_instance:set_window_options()
 
         return window_instance
     end
@@ -72,6 +71,7 @@ end
 
 function Window:open(bufnr)
     self.winnr = vim.api.nvim_open_win(bufnr, true, self.open_window_options)
+    self.bufnr = bufnr
 end
 
 return Window
