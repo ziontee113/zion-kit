@@ -23,6 +23,7 @@ vim.keymap.set("n", "<A-=>", function()
         },
         window_options = {
             cursorline = true,
+            cursorlaw = true,
         },
     })
     buf2:set_content({ "look at me now" })
@@ -33,6 +34,13 @@ vim.keymap.set("n", "<A-=>", function()
     vim.keymap.set("n", "<Tab>", function()
         win2:jump_to()
     end, { buffer = buf1.bufnr })
+
+    vim.keymap.set("n", "q", function()
+        win1:close()
+    end, { buffer = buf1.bufnr })
+    vim.keymap.set("n", "q", function()
+        win2:close()
+    end, { buffer = buf2.bufnr })
 end, {})
 
 vim.keymap.set("n", "<A-BS>", function()

@@ -78,14 +78,12 @@ end
 
 function Window.notify_win_set_option_failure(ok, option_name, option_value)
     if not ok then
-        local error_log_level = 2
         vim.notify({
             "Failed to set Window option: "
                 .. option_name
                 .. " :: "
-                .. option_value,
-            error_log_level,
-        })
+                .. tostring(option_value),
+        }, "error")
     end
 end
 
