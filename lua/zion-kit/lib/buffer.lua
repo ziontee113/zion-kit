@@ -25,21 +25,22 @@ function Buffer:extend_buffer_options(buffer_options)
 end
 
 function Buffer:set_buffer_options()
-    for option_key, option_value in pairs(self.buffer_options) do
-        vim.api.nvim_buf_set_option(self.bufnr, option_key, option_value)
+    for option_name, option_value in pairs(self.buffer_options) do
+        local ok, _ = pcall(vim.api.nvim_buf_set_option, self.bufnr, option_name, option_value)
+        self.notify_buf_set_option_failure(ok, option_name, option_value)
     end
 end
 
 function Buffer:set_single_option(option_name, option_value)
     local ok, _ = pcall(vim.api.nvim_buf_set_option, self.bufnr, option_name, option_value)
-    self.notify_set_option_failure(ok, option_name, option_value)
+    self.notify_buf_set_option_failure(ok, option_name, option_value)
 end
 
-function Buffer.notify_set_option_failure(ok, option_name, option_value)
+function Buffer.notify_buf_set_option_failure(ok, option_name, option_value)
     if not ok then
         local error_log_level = 2
         vim.notify({
-            "Failed to set buffer option: " .. option_name .. "" .. option_value,
+            "Failed to set Buffer option: " .. option_name .. "" .. option_value,
             error_log_level,
         })
     end
