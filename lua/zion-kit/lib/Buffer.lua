@@ -52,7 +52,7 @@ function Buffer.notify_buf_set_option_failure(ok, option_name, option_value)
         vim.notify({
             "Failed to set Buffer option: "
                 .. option_name
-                .. " :: "
+                .. " = "
                 .. tostring(option_value),
         }, "error")
     end

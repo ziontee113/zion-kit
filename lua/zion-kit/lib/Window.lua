@@ -76,7 +76,7 @@ function Window.notify_win_set_option_failure(ok, option_name, option_value)
         vim.notify({
             "Failed to set Window option: "
                 .. option_name
-                .. " :: "
+                .. " = "
                 .. tostring(option_value),
         }, "error")
     end
