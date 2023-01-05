@@ -1,0 +1,5 @@
+describe("fmt", function()
+    it("works", function()
+        assert.equals(1, 0 + 1)
+    end)
+end)
