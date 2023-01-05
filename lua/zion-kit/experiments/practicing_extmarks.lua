@@ -2,6 +2,13 @@ require "zion-kit.experiments.ts_node_in_range_predicates"
 
 local ns = vim.api.nvim_create_namespace "ts_testing"
 
+vim.api.nvim_set_hl(0, "AquaVisual", {
+    fg = "#8ec07c",
+    -- fg = "#fe8019",
+    bg = "#665c54",
+    bold = true,
+})
+
 -- Getting Nodes --------------------------------------------------------
 
 REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
@@ -75,6 +82,8 @@ REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
                     hl_group = "Visual",
                     hl_mode = "replace",
                     priority = 500,
+                    virt_text = { { key, "AquaVisual" } },
+                    virt_text_pos = "overlay",
                 })
 
                 vim.api.nvim_buf_del_extmark(0, ns, extmark_hash_table[key])

@@ -61,7 +61,7 @@ query.add_predicate("fits-in-view?", function(match, _, _, pred)
     local start_row, _, end_row, _ = node:range()
 
     local first_line, last_line =
-        tonumber(vim.fn.line "w0"), tonumber(vim.fn.line "w$")
+        tonumber(vim.fn.line "w0") - 1, tonumber(vim.fn.line "w$") - 1
 
     if first_line <= start_row and last_line >= end_row then return true end
 
@@ -75,7 +75,7 @@ query.add_predicate("visible-in-view?", function(match, _, _, pred)
     local start_row, _, end_row, _ = node:range()
 
     local first_line, last_line =
-        tonumber(vim.fn.line "w0"), tonumber(vim.fn.line "w$")
+        tonumber(vim.fn.line "w0") - 1, tonumber(vim.fn.line "w$") - 1
 
     if first_line <= start_row and last_line >= end_row then return true end
     if first_line <= start_row and last_line >= start_row then return true end
