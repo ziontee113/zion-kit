@@ -15,7 +15,7 @@ local Window = {
 Window.__index = Window
 
 function Window:new(options)
-    if Window.options_are_valid(options) then
+    if Window.has_valid_bufnr_option(options) then
         local window_instance = setmetatable({}, Window)
 
         window_instance:extend_open_window_options(options.open_window_options)
@@ -24,11 +24,19 @@ function Window:new(options)
         window_instance:set_window_options()
 
         return window_instance
+    else
+        self.notify_invalid_bufnr_option()
     end
 end
 
-function Window.options_are_valid(options)
+function Window.has_valid_bufnr_option(options)
     return options.bufnr
+end
+
+function Window.notify_invalid_bufnr_option()
+    vim.notify({
+        "Please provide valid bufnr option",
+    }, "error")
 end
 
 ---@param position table|nil
