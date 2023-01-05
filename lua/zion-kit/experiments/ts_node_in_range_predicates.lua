@@ -1,3 +1,5 @@
+-- Imports & Predicate Helper -------------------------------------------------------------
+
 local query = require "vim.treesitter.query"
 
 local function valid_args(name, pred, count, strict_count)
@@ -18,7 +20,7 @@ local function valid_args(name, pred, count, strict_count)
     return true
 end
 
------------------------------------------------------------------------------- In Range
+-- In Range ------------------------------------------------------------------------------
 
 query.add_predicate("fits-in-range?", function(match, _, _, pred)
     if not valid_args("fits-in-range?", pred, 3, true) then return end
@@ -50,7 +52,7 @@ query.add_predicate("visible-in-range?", function(match, _, _, pred)
     return false
 end)
 
------------------------------------------------------------------------------- In View
+-- In View ------------------------------------------------------------------------------
 
 query.add_predicate("fits-in-view?", function(match, _, _, pred)
     if not valid_args("fits-in-view?", pred, 1, true) then return end
