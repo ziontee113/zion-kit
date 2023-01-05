@@ -4,14 +4,15 @@ local Buffer = {
         bufhidden = "delete",
     },
 }
+Buffer.__index = Buffer
 
-function Buffer:new(user_options)
-    local buffer_instance = setmetatable({}, { __index = Buffer })
+function Buffer:new(options)
+    local buffer_instance = setmetatable({}, Buffer)
 
-    user_options = user_options or {}
+    options = options or {}
 
     buffer_instance:create_scratch_buffer()
-    buffer_instance:extend_buffer_options(user_options.buffer_options)
+    buffer_instance:extend_buffer_options(options.buffer_options)
     buffer_instance:set_buffer_options()
 
     return buffer_instance
@@ -32,13 +33,7 @@ end
 
 function Buffer:set_buffer_options()
     for option_name, option_value in pairs(self.buffer_options) do
-        local ok, _ = pcall(
-            vim.api.nvim_buf_set_option,
-            self.bufnr,
-            option_name,
-            option_value
-        )
-        self.notify_buf_set_option_failure(ok, option_name, option_value)
+        self:set_single_option(option_name, option_value)
     end
 end
 

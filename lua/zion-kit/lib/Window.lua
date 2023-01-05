@@ -12,10 +12,11 @@ local Window = {
         --
     },
 }
+Window.__index = Window
 
 function Window:new(options)
     if Window.options_are_valid(options) then
-        local window_instance = setmetatable({}, { __index = Window })
+        local window_instance = setmetatable({}, Window)
 
         window_instance:extend_open_window_options(options.open_window_options)
         window_instance:extend_window_options(options.window_options)
@@ -56,13 +57,7 @@ end
 
 function Window:set_window_options()
     for option_name, option_value in pairs(self.window_options) do
-        local ok, _ = pcall(
-            vim.api.nvim_win_set_option,
-            self.winnr,
-            option_name,
-            option_value
-        )
-        self.notify_win_set_option_failure(ok, option_name, option_value)
+        self:set_single_option(option_name, option_value)
     end
 end
 
