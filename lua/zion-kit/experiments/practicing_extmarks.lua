@@ -4,7 +4,7 @@ local ns = vim.api.nvim_create_namespace "ts_testing"
 
 -- Getting Nodes --------------------------------------------------------
 
-REMAP("n", "<Plug>R1 P, L1 A<Plug>", function()
+REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
     vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
     vim.cmd "messages clear"
 
@@ -27,6 +27,7 @@ REMAP("n", "<Plug>R1 P, L1 A<Plug>", function()
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ";", "!",
     }
 
+    local hash_table = {}
     local count = 1
     for _, matches, _ in iter_query:iter_matches(root, 0) do
         local node = matches[1]
@@ -41,9 +42,41 @@ REMAP("n", "<Plug>R1 P, L1 A<Plug>", function()
         })
         vim.api.nvim_buf_set_extmark(0, ns, start_row, start_col, {
             virt_text = { { "<-- " .. labels[count], "GruvboxAquaBold" } },
-            priority = 500,
+            priority = 450,
         })
+
+        hash_table[labels[count]] = node
         count = count + 1
+
+        --------------------
+    end
+
+    vim.cmd "redraw"
+
+    while true do
+        local ok, keynum = pcall(vim.fn.getchar)
+        if ok then
+            local key = string.char(keynum)
+
+            if key == "" then break end
+
+            local node = hash_table[key]
+            if node then
+                local start_row, start_col, end_row, end_col = node:range()
+                vim.highlight.range(
+                    0,
+                    ns,
+                    "Visual",
+                    { start_row, start_col },
+                    { end_row, end_col },
+                    {
+                        priority = 500,
+                    }
+                )
+            end
+
+            vim.cmd "redraw"
+        end
     end
 end)
 
