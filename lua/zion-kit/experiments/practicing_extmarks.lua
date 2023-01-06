@@ -66,7 +66,7 @@ function FlowSik:parse_query()
     return iter_query, root
 end
 
-function FlowSik:get_nodes()
+function FlowSik:collect_nodes_from_parsed_query()
     local iter_query, root = self:parse_query()
 
     for _, matches, _ in iter_query:iter_matches(root, 0) do
@@ -76,99 +76,19 @@ function FlowSik:get_nodes()
 end
 
 function FlowSik:create_labels()
-    self:get_nodes()
+    self:collect_nodes_from_parsed_query()
 
-    local label_set = 1
+    self.label_set = 1
     local set_index = 1
     for _, node in ipairs(self.nodes) do
         if set_index > #self.labels then
-            label_set = label_set + 1
+            self.label_set = self.label_set + 1
             set_index = 1
         end
 
-        self:add_extmark(node, set_index, self.normal_hl_group)
+        self:add_label(node, set_index, self.normal_hl_group)
 
         set_index = set_index + 1
-    end
-end
-
-function FlowSik:add_extmark(node, label_index, hl_group)
-    local start_row, start_col, _, _ = node:range()
-    local extmark_id =
-        vim.api.nvim_buf_set_extmark(0, ns, start_row, start_col, {
-            virt_text = {
-                { self.labels[label_index], hl_group },
-            },
-            virt_text_pos = "overlay",
-        })
-    table.insert(self.extmarks, extmark_id)
-end
-
--- Getting Nodes --------------------------------------------------------
-
-REMAP("n", "<Plug>L1 G, R1 O<Plug>", function()
-    local instance = FlowSik:new({
-        normal_hl_group = "GruvboxAquaBold",
-        visual_hl_group = "AquaVisual",
-        namespace = ns,
-        lang = "lua",
-        query = [[
-            ;; query
-            ( "string_content" @cap (#visible-in-view? @cap) )
-        ]],
-    })
-
-    instance:create_labels()
-end)
-
-REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
-    vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-    vim.cmd "messages clear"
-
-    local query = [[
-        ;; query
-        ( "string_content" @cap (#visible-in-view? @cap) )
-    ]]
-
-    -- local query = [[
-    --     ;; query
-    --     ( (variable_declaration) @cap (#visible-in-view? @cap) )
-    -- ]]
-
-    local iter_query = vim.treesitter.query.parse_query("lua", query)
-
-    local parser = vim.treesitter.get_parser(0, "lua")
-    local trees = parser:parse()
-    local root = trees[1]:root()
-
-    -- stylua: ignore
-    local labels = {
-        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-        "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ";", "!",
-        -- "/", ".", ":", "'", '"', "\\", "=", "-", "_", "[", "]", "{", "}",
-    }
-
-    local hash_table = {}
-    local extmark_hash_table = {}
-    local count = 1
-    for _, matches, _ in iter_query:iter_matches(root, 0) do
-        if labels[count] then
-            local node = matches[1]
-
-            local start_row, start_col, end_row, end_col = node:range()
-            local extmark_id =
-                vim.api.nvim_buf_set_extmark(0, ns, start_row, start_col, {
-                    virt_text = { { labels[count], "GruvboxOrangeBold" } },
-                    virt_text_pos = "overlay",
-                })
-
-            hash_table[labels[count]] = node
-            extmark_hash_table[labels[count]] = extmark_id
-            count = count + 1
-        end
     end
 
     vim.cmd "redraw"
@@ -183,25 +103,76 @@ REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
                 break
             end
 
-            local node = hash_table[key]
-            if node then
-                local start_row, start_col, end_row, end_col = node:range()
-                vim.api.nvim_buf_set_extmark(0, ns, start_row, start_col, {
-                    end_row = end_row,
-                    end_col = end_col,
-                    hl_group = "Visual",
-                    hl_mode = "replace",
-                    priority = 500,
-                    virt_text = { { key, "AquaVisual" } },
-                    virt_text_pos = "overlay",
-                })
+            local index_in_labels = self:labels_contains(key)
 
-                vim.api.nvim_buf_del_extmark(0, ns, extmark_hash_table[key])
+            if index_in_labels then
+                local node_index = index_in_labels * self.label_set
+                vim.api.nvim_buf_del_extmark(
+                    0,
+                    self.namespace,
+                    self.extmarks[node_index]
+                )
+
+                local node = self.nodes[node_index]
+                self:highlight_node(node, node_index, self.visual_hl_group)
+
+                vim.cmd "redraw"
             end
-
-            vim.cmd "redraw"
+        else
+            break
         end
     end
+end
+
+function FlowSik:labels_contains(key)
+    for i, label in ipairs(self.labels) do
+        if label == key then return i end
+    end
+    return nil
+end
+
+function FlowSik:add_label(node, label_index, hl_group)
+    local start_row, start_col, _, _ = node:range()
+    local extmark_id =
+        vim.api.nvim_buf_set_extmark(0, ns, start_row, start_col, {
+            virt_text = {
+                { self.labels[label_index], hl_group },
+            },
+            virt_text_pos = "overlay",
+        })
+    table.insert(self.extmarks, extmark_id)
+end
+
+function FlowSik:highlight_node(node, label_index, hl_group)
+    local start_row, start_col, end_row, end_col = node:range()
+    local extmark_id =
+        vim.api.nvim_buf_set_extmark(0, ns, start_row, start_col, {
+            end_row = end_row,
+            end_col = end_col,
+            hl_group = "Visual",
+            hl_mode = "replace",
+            priority = 500,
+            virt_text = { { self.labels[label_index], hl_group } },
+            virt_text_pos = "overlay",
+        })
+    table.insert(self.extmarks, extmark_id)
+end
+
+-- Getting Nodes --------------------------------------------------------
+
+REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
+    local instance = FlowSik:new({
+        normal_hl_group = "GruvboxAquaBold",
+        visual_hl_group = "AquaVisual",
+        namespace = ns,
+        lang = "lua",
+        query = [[
+            ;; query
+            ( "string_content" @cap (#visible-in-view? @cap) )
+        ]],
+    })
+
+    instance:create_labels()
 end)
 
 -- Mappings -------------------------------------------------------------
