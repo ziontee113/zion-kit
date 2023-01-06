@@ -24,7 +24,102 @@ combine_hl_groups("GruvboxAqua", "Visual", "AquaVisual", {
     bold = true,
 })
 
+-- Data Structure -------------------------------------------------------
+
+local FlowSik = {
+    -- stylua: ignore
+    labels = {
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+        "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+        "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ",", ";", "!",
+        -- "/", ".", ":", "'", '"', "\\", "=", "-", "_", "[", "]", "{", "}",
+    },
+    query = nil,
+    lang = nil,
+    normal_hl_group = nil,
+    visual_hl_group = nil,
+    namespace = nil,
+    nodes = {},
+    extmarks = {},
+}
+FlowSik.__index = FlowSik
+
+function FlowSik:new(props)
+    local instance = setmetatable({}, FlowSik)
+
+    for key, prop in pairs(props) do
+        self[key] = prop
+    end
+
+    return instance
+end
+
+function FlowSik:parse_query()
+    local iter_query = vim.treesitter.query.parse_query("lua", self.query)
+
+    local parser = vim.treesitter.get_parser(0, self.lang)
+    local trees = parser:parse()
+    local root = trees[1]:root()
+
+    return iter_query, root
+end
+
+function FlowSik:get_nodes()
+    local iter_query, root = self:parse_query()
+
+    for _, matches, _ in iter_query:iter_matches(root, 0) do
+        local node = matches[1]
+        table.insert(self.nodes, node)
+    end
+end
+
+function FlowSik:create_labels()
+    self:get_nodes()
+
+    local label_set = 1
+    local set_index = 1
+    for _, node in ipairs(self.nodes) do
+        if set_index > #self.labels then
+            label_set = label_set + 1
+            set_index = 1
+        end
+
+        self:add_extmark(node, set_index, self.normal_hl_group)
+
+        set_index = set_index + 1
+    end
+end
+
+function FlowSik:add_extmark(node, label_index, hl_group)
+    local start_row, start_col, _, _ = node:range()
+    local extmark_id =
+        vim.api.nvim_buf_set_extmark(0, ns, start_row, start_col, {
+            virt_text = {
+                { self.labels[label_index], hl_group },
+            },
+            virt_text_pos = "overlay",
+        })
+    table.insert(self.extmarks, extmark_id)
+end
+
 -- Getting Nodes --------------------------------------------------------
+
+REMAP("n", "<Plug>L1 G, R1 O<Plug>", function()
+    local instance = FlowSik:new({
+        normal_hl_group = "GruvboxAquaBold",
+        visual_hl_group = "AquaVisual",
+        namespace = ns,
+        lang = "lua",
+        query = [[
+            ;; query
+            ( "string_content" @cap (#visible-in-view? @cap) )
+        ]],
+    })
+
+    instance:create_labels()
+end)
 
 REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
     vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
@@ -122,5 +217,3 @@ REMAP("n", "<Plug>L1 G, R1 H<Plug>", function()
         virt_text = { { "hello", "GruvboxAquaBold" } },
     })
 end)
-
--- {{{nvim-execute-on-save}}}
