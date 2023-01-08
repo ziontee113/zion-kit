@@ -160,7 +160,7 @@ end
 
 -- Getting Nodes --------------------------------------------------------
 
-REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
+vim.keymap.set("n", "<leader>k", function()
     local instance = FlowSik:new({
         normal_hl_group = "GruvboxAquaBold",
         visual_hl_group = "AquaVisual",
@@ -177,14 +177,8 @@ end)
 
 -- Mappings -------------------------------------------------------------
 
-REMAP("n", "<Plug>L1 G, R1 L<Plug>", function()
+vim.keymap.set("n", "<leader>c", function()
     vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
 end)
 
-REMAP("n", "<Plug>L1 G, R1 H<Plug>", function()
-    vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-
-    vim.api.nvim_buf_set_extmark(0, ns, 3, 0, {
-        virt_text = { { "hello", "GruvboxAquaBold" } },
-    })
-end)
+-- {{{nvim-execute-on-save}}}
