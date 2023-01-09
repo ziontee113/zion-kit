@@ -2,7 +2,7 @@ local namespace = vim.api.nvim_create_namespace "ts_testing"
 
 -- TODO: the z a b approach
 
-REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
+vim.keymap.set("n", "<Plug>L1 G, R1 P<Plug>", function()
     vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
 
     vim.api.nvim_buf_set_extmark(0, namespace, 0, 8, {
@@ -16,7 +16,7 @@ REMAP("n", "<Plug>L1 G, R1 P<Plug>", function()
     })
 end)
 
-REMAP("n", "<Plug>L1 G, R1 L<Plug>", function()
+vim.keymap.set("n", "<Plug>L1 G, R1 L<Plug>", function()
     vim.api.nvim_buf_clear_namespace(0, namespace, 0, -1)
 end)
 

@@ -139,6 +139,7 @@ function FlowSik:add_label(node, label_index, hl_group)
                 { self.labels[label_index], hl_group },
             },
             virt_text_pos = "overlay",
+            priority = 100,
         })
     table.insert(self.extmarks, extmark_id)
 end
