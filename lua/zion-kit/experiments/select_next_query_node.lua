@@ -63,7 +63,7 @@ local function node_movement(opts)
     update_selection(opts.direction, iter_query, root)
 end
 
-vim.keymap.set({ "n", "x" }, "<leader>j", function()
+vim.keymap.set({ "n", "x" }, "<Down>", function()
     node_movement({
         direction = "forward",
         lang = "lua",
@@ -73,7 +73,7 @@ vim.keymap.set({ "n", "x" }, "<leader>j", function()
         ]],
     })
 end, {})
-vim.keymap.set({ "n", "x" }, "<leader>k", function()
+vim.keymap.set({ "n", "x" }, "<Up>", function()
     node_movement({
         direction = "backwards",
         lang = "lua",
